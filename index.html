@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AutoUploader — schedule your Shorts 24/7</title>
+<meta name="description" content="Connect your YouTube channel, drop a ZIP of clips, and AutoUploader schedules them as Shorts with fresh titles, descriptions and hashtags — YouTube posts them around the clock." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23ff3355'/><path d='M50 22l22 26H58v28H42V48H28z' fill='%23fff'/></svg>" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap" />
+<style>
+:root{--bg:#0a0a10;--card:#13131c;--card2:#1a1a26;--line:#272736;--text:#f3f3f7;--muted:#9a9aae;--accent:#ff3355;--accent2:#ff7a45;--ok:#3ddc84;--warn:#ffb020;--r:16px}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;background-image:radial-gradient(1100px 520px at 90% -10%,rgba(255,51,85,.13),transparent 60%),radial-gradient(900px 420px at -10% 20%,rgba(255,122,69,.08),transparent 60%)}
+h1,h2,h3{font-family:Poppins,system-ui,sans-serif;margin:0;letter-spacing:-.01em}
+svg{width:1em;height:1em;fill:currentColor}
+[hidden]{display:none!important}
+.muted{color:var(--muted)} .hint{color:var(--muted);font-style:normal;font-weight:400}
+.ok{color:var(--ok)} .bad{color:var(--accent)} .warnc{color:var(--warn)}
+.top{display:flex;align-items:center;gap:12px;padding:16px 24px;max-width:1120px;margin:0 auto}
+.brand{display:flex;align-items:center;gap:10px;font:700 20px Poppins,sans-serif}
+.brand b{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff}
+.pill{margin-left:auto;font-size:12px;color:var(--muted);background:var(--card);border:1px solid var(--line);padding:6px 12px;border-radius:99px;display:flex;gap:8px;align-items:center}
+.pill i{width:8px;height:8px;border-radius:50%;background:var(--muted)}
+.pill.on i{background:var(--ok);box-shadow:0 0 8px var(--ok)}
+main{max-width:1120px;margin:0 auto;padding:0 24px 40px}
+.hero{padding:26px 0 22px}
+.hero h1{font-size:clamp(30px,5vw,52px);line-height:1.05}
+.hero h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{color:var(--muted);max-width:660px;font-size:17px;margin:14px 0 0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;margin-bottom:18px}
+.head{display:flex;align-items:center;gap:12px;margin-bottom:16px;flex-wrap:wrap}
+.head h2{font-size:19px}
+.num{width:28px;height:28px;border-radius:8px;background:var(--card2);border:1px solid var(--line);display:grid;place-items:center;font:700 14px Poppins,sans-serif;color:var(--accent)}
+.done .num{background:var(--ok);color:#06210f;border-color:var(--ok)}
+.field{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+.field>span{font-weight:600;font-size:13px}
+.row{display:flex;gap:14px;flex-wrap:wrap}.row>.field{flex:1;min-width:170px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0 14px}
+input[type=text],input[type=number],input[type=password],input[type=time],input[type=datetime-local],select,textarea{background:var(--bg);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 13px;font:inherit;outline:none;width:100%;color-scheme:dark}
+input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+textarea{resize:vertical}
+.btn,.ghost{font:600 14px system-ui,sans-serif;border-radius:11px;padding:10px 16px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:0}
+.btn{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+.btn:hover{filter:brightness(1.07)} .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn.big{width:100%;padding:18px;font-size:18px;border-radius:14px;font-family:Poppins,sans-serif}
+.ghost{background:transparent;color:var(--text);border:1px solid var(--line)}
+.ghost:hover{border-color:#555}
+.ghost.sm,.btn.sm{padding:6px 10px;font-size:12px;border-radius:9px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--bg);border:1px solid var(--line);color:var(--text);padding:8px 13px;border-radius:99px;font:600 13px system-ui,sans-serif;cursor:pointer}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
+.toggles{display:flex;flex-wrap:wrap;gap:10px 22px;margin-bottom:12px}
+.tg{display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none;font-size:14px}
+.tg input{display:none}
+.tg .sw{width:38px;height:22px;border-radius:99px;background:var(--line);position:relative;flex:none;transition:.2s}
+.tg .sw:after{content:"";position:absolute;top:3px;left:3px;width:16px;height:16px;border-radius:50%;background:#fff;transition:.2s}
+.tg input:checked+.sw{background:var(--accent)}
+.tg input:checked+.sw:after{left:19px}
+.note{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:13px;color:var(--muted)}
+.note b{color:var(--text)}
+.warn{background:rgba(255,176,32,.08);border:1px solid rgba(255,176,32,.35);color:#ffd590;padding:12px 14px;border-radius:12px;font-size:13.5px;margin-bottom:14px}
+.err{color:var(--accent);margin:10px 0 0;font-size:14px}
+code{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:1px 6px;font-size:12.5px;word-break:break-all}
+details.guide{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin-top:12px}
+details.guide summary{cursor:pointer;font-weight:600}
+details.guide ol{margin:10px 0 4px;padding-left:20px}
+details.guide li{margin-bottom:8px;font-size:14px}
+.chan{display:flex;align-items:center;gap:14px;background:var(--bg);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.chan img{width:46px;height:46px;border-radius:50%;background:var(--card2);object-fit:cover}
+.chan b{font-size:16px}
+.drop{border:2px dashed var(--line);border-radius:14px;padding:30px;display:flex;flex-direction:column;align-items:center;gap:10px;cursor:pointer;color:var(--muted);text-align:center}
+.drop svg{width:36px;height:36px;color:var(--accent)}
+.drop.over{border-color:var(--accent);background:rgba(255,51,85,.05)}
+.drop.done{border-style:solid;border-color:var(--ok);color:var(--text)}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.stats div{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px;color:var(--muted)}
+.stats b{display:block;font-size:18px;color:var(--text)}
+.cliplist{display:flex;flex-direction:column;gap:8px;max-height:640px;overflow:auto;padding-right:4px}
+.ci{display:grid;grid-template-columns:22px 62px 1fr;gap:12px;align-items:start;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px}
+.ci .th{width:62px;height:110px;border-radius:8px;background:#000;object-fit:cover}
+.ci .ti{font-weight:600;padding:8px 10px}
+.ci textarea{font-size:13px;padding:8px 10px;margin-top:6px}
+.ci .meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin-top:4px}
+.ci .tags{font-size:12px;padding:6px 10px;margin-top:6px}
+.ci.off{opacity:.45}
+.badge{font:700 11px system-ui;padding:3px 8px;border-radius:99px;background:var(--card2);border:1px solid var(--line);white-space:nowrap}
+.badge.waiting{color:#9bb7ff}.badge.uploading{color:var(--warn)}.badge.scheduled,.badge.live{color:var(--ok)}.badge.failed{color:var(--accent)}
+.bar{height:10px;background:var(--bg);border-radius:99px;overflow:hidden;border:1px solid var(--line);margin:12px 0}
+.bar div{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));transition:width .4s}
+.qrow{display:grid;grid-template-columns:150px 1fr auto auto;gap:10px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:13px}
+.qrow .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qrow a{color:var(--muted)}
+.queue{display:flex;flex-direction:column;gap:6px;max-height:520px;overflow:auto}
+.x{background:none;border:0;color:var(--muted);cursor:pointer;font-size:12px}
+.plan{font-size:14px;color:var(--muted);margin:4px 0 14px}
+.plan b{color:var(--text)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#22222e;border:1px solid var(--line);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:90vw}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 24px 40px;max-width:760px;margin:0 auto}
+@media(max-width:760px){main,.top{padding-left:14px;padding-right:14px}.card{padding:16px}.ci{grid-template-columns:22px 1fr}.ci .th{display:none}.qrow{grid-template-columns:1fr auto}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><span class="logo"><svg viewBox="0 0 24 24"><path d="M12 3l7 8h-4v8H9v-8H5z"/></svg></span><span>Auto<b>Uploader</b></span></div>
+  <div class="pill" id="pill"><i></i><span id="pillText">Not connected</span></div>
+</header>
+
+<main>
+<section class="hero">
+  <h1>Drop your clips.<br><span>We post them 24/7.</span></h1>
+  <p>Connect your YouTube channel and drop a ZIP of clips. AutoUploader writes a different title, description and hashtags for every Short, then schedules them, e.g. one every 45 minutes. YouTube publishes them around the clock, even when this page is closed.</p>
+</section>
+
+<!-- 1 CONNECT -->
+<section class="card" id="c1">
+  <div class="head"><span class="num">1</span><h2>Connect your YouTube channel</h2></div>
+  <div id="connBox">
+    <div class="row">
+      <label class="field"><span>Google OAuth Client ID <i class="hint">(one-time setup — see the guide below)</i></span>
+        <input id="clientId" type="text" placeholder="1234567890-abc123.apps.googleusercontent.com" autocomplete="off"></label>
+    </div>
+    <button class="btn" type="button" id="connectBtn">▶ Connect YouTube channel</button>
+    <p class="err" id="connErr" hidden></p>
+    <details class="guide" id="guide">
+      <summary>📘 One-time setup (about 10 minutes): get your Client ID</summary>
+      <ol>
+        <li>Open <a href="https://console.cloud.google.com/" target="_blank" rel="noopener">console.cloud.google.com</a> and create a project (e.g. “AutoUploader”).</li>
+        <li><b>APIs &amp; Services → Library</b>: search <b>YouTube Data API v3</b> and click <b>Enable</b>.</li>
+        <li><b>OAuth consent screen</b> (Google Auth Platform): choose <b>External</b>, enter an app name and your email. Under <b>Audience → Test users</b>, add the Google account that owns your channel.</li>
+        <li><b>Clients → Create client</b>: type <b>Web application</b>. Under <b>Authorized JavaScript origins</b>, add exactly:<br><code id="originCode"></code></li>
+        <li>Copy the <b>Client ID</b>, paste it above, and click <b>Connect</b>. Google warns that the app isn't verified. It's your own app, so click <b>Continue</b> and allow access.</li>
+        <li><b>⚠ Important for public videos:</b> YouTube keeps every video uploaded through an unaudited Google project <b>private</b>, and those videos stay locked. Submit the free <b>“YouTube API Services – Audit and Quota Extension”</b> form for your project (search that name). Until it's approved, test with 1–2 clips only.</li>
+      </ol>
+    </details>
+  </div>
+  <div id="chanBox" hidden>
+    <div class="chan"><img id="chanImg" alt=""><div><b id="chanName"></b><div class="muted" id="chanSubs" style="font-size:13px"></div></div>
+      <div style="margin-left:auto;display:flex;gap:8px"><button class="ghost sm" type="button" id="switchBtn">Switch channel</button><button class="ghost sm" type="button" id="logoutBtn">Disconnect</button></div></div>
+  </div>
+</section>
+
+<!-- 2 CLIPS -->
+<section class="card" id="c2">
+  <div class="head"><span class="num">2</span><h2>Add your clips</h2></div>
+  <label class="drop" id="drop">
+    <input id="fileIn" type="file" accept=".zip,video/*" multiple hidden>
+    <svg viewBox="0 0 24 24"><path d="M12 3l5 5h-3v6h-4V8H7zm-7 14h14v3H5z"/></svg>
+    <span id="dropText"><b>Drop a ZIP of clips</b> (or video files) here, or <u>browse</u><br><small>MP4 / MOV / WebM · vertical, up to 3 minutes each = YouTube Shorts · .txt/.srt files next to clips are used for titles</small></span>
+  </label>
+  <div class="stats" id="clipStats" hidden></div>
+  <div class="warn" id="clipWarn" hidden></div>
+</section>
+
+<!-- 3 METADATA -->
+<section class="card" id="c3">
+  <div class="head"><span class="num">3</span><h2>Titles, descriptions &amp; hashtags</h2></div>
+  <div class="row">
+    <label class="field"><span>What are your clips about? <i class="hint">(niche / game / show / person)</i></span><input id="niche" type="text" placeholder="e.g. BGMI funny moments, podcast clips, cricket"></label>
+    <label class="field" style="max-width:220px"><span>Title language style</span><select id="lang"><option value="en">English</option><option value="hinglish">Hinglish</option><option value="hi">Hindi (हिन्दी)</option></select></label>
+  </div>
+  <label class="field"><span>Hashtag pool <i class="hint">— each Short gets a different mix of 3–6 of these (#shorts is always added)</i></span>
+    <textarea id="hashPool" rows="2" placeholder="#gaming #bgmi #funny #viral #trending #streamhighlights #clips"></textarea></label>
+  <div class="row">
+    <label class="field"><span>Tags / keywords (comma separated)</span><input id="tagsIn" type="text" placeholder="gaming clips, funny moments, live stream"></label>
+    <label class="field"><span>Credit line <i class="hint">(optional)</i></span><input id="credit" type="text" placeholder="Credit: @streamername"></label>
+  </div>
+  <label class="field"><span>Call-to-action lines <i class="hint">— one per line, a different one is used for each Short</i></span>
+    <textarea id="ctaIn" rows="3"></textarea></label>
+  <div class="toggles">
+    <label class="tg"><input type="checkbox" id="emoji" checked><span class="sw"></span><span>Emojis in titles</span></label>
+    <label class="tg"><input type="checkbox" id="shortsTitle" checked><span class="sw"></span><span>Add #shorts to titles</span></label>
+    <label class="tg"><input type="checkbox" id="useAI"><span class="sw"></span><span>✨ Write with AI (free Gemini key)</span></label>
+  </div>
+  <div class="row" id="aiBox" hidden>
+    <label class="field"><span>Gemini API key <i class="hint">— free at aistudio.google.com · stays in this browser</i></span><input id="aiKey" type="password" placeholder="AIza…" autocomplete="off"></label>
+    <label class="field" style="max-width:240px"><span>Model</span><input id="aiModel" type="text" value="gemini-flash-latest"></label>
+  </div>
+  <button class="btn" type="button" id="genBtn" disabled>✍️ Write titles &amp; descriptions</button>
+  <span class="muted" id="genInfo" style="margin-left:10px;font-size:13px"></span>
+  <div class="cliplist" id="clipList" style="margin-top:14px"></div>
+</section>
+
+<!-- 4 SCHEDULE -->
+<section class="card" id="c4">
+  <div class="head"><span class="num">4</span><h2>Schedule</h2></div>
+  <div class="grid3">
+    <label class="field"><span>First Short goes live</span><input id="startAt" type="datetime-local"></label>
+    <label class="field"><span>Then one every</span><select id="every"><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="45" selected>45 minutes</option><option value="60">1 hour</option><option value="90">1.5 hours</option><option value="120">2 hours</option><option value="180">3 hours</option><option value="240">4 hours</option><option value="360">6 hours</option></select></label>
+    <label class="field"><span>Max Shorts per day</span><input id="perDay" type="number" min="1" max="96" value="32"></label>
+    <label class="field"><span>Post only between</span><input id="winFrom" type="time" value="00:00"></label>
+    <label class="field"><span>and</span><input id="winTo" type="time" value="23:59"></label>
+    <label class="field"><span>Category</span><select id="cat">
+      <option value="24">Entertainment</option><option value="20">Gaming</option><option value="22">People &amp; Blogs</option><option value="23">Comedy</option><option value="17">Sports</option><option value="10">Music</option><option value="27">Education</option><option value="28">Science &amp; Technology</option><option value="26">Howto &amp; Style</option><option value="25">News &amp; Politics</option><option value="1">Film &amp; Animation</option><option value="15">Pets &amp; Animals</option><option value="19">Travel &amp; Events</option><option value="2">Autos &amp; Vehicles</option></select></label>
+    <label class="field"><span>Video language (code)</span><input id="vlang" type="text" placeholder="en / hi (optional)"></label>
+    <label class="field"><span>Add to playlist (playlist ID)</span><input id="playlist" type="text" placeholder="optional · PLxxxx"></label>
+  </div>
+  <div class="toggles">
+    <label class="tg"><input type="checkbox" id="kids"><span class="sw"></span><span>Made for kids</span></label>
+    <label class="tg"><input type="checkbox" id="notify"><span class="sw"></span><span>Notify subscribers for each Short</span></label>
+    <label class="tg"><input type="checkbox" id="synthetic"><span class="sw"></span><span>Contains realistic AI-altered content</span></label>
+  </div>
+  <p class="plan" id="plan"></p>
+  <button class="btn big" type="button" id="startBtn" disabled>🚀 Start AutoPilot</button>
+  <p class="err" id="startErr" hidden></p>
+</section>
+
+<!-- 5 AUTOPILOT -->
+<section class="card" id="c5">
+  <div class="head"><span class="num">⟳</span><h2>AutoPilot</h2>
+    <div style="margin-left:auto;display:flex;gap:8px"><button class="ghost sm" type="button" id="pauseBtn">Pause</button><button class="ghost sm" type="button" id="refreshYt">Refresh from YouTube</button></div></div>
+  <div class="warn" id="apWarn" hidden></div>
+  <div id="apStatus" class="muted">Nothing queued yet.</div>
+  <div class="bar" id="apBarWrap" hidden><div id="apBar"></div></div>
+  <div class="stats" id="apStats"></div>
+  <div class="queue" id="queue"></div>
+</section>
+</main>
+
+<footer>AutoUploader runs entirely in your browser and talks only to Google/YouTube. Your clips, keys and login never touch any other server. Upload only videos you own or have permission to post, and follow YouTube's spam & misleading-metadata policies.</footer>
+
+<script>
+(() => {
+"use strict";
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = (t) => String(t ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const inPreview = (() => { try { return !!(window.claude && window.claude.use); } catch { return false; } })();
+const YT = "https://www.googleapis.com/youtube/v3";
+const YT_UP = "https://www.googleapis.com/upload/youtube/v3";
+const SCOPES = "https://www.googleapis.com/auth/youtube.upload https://www.googleapis.com/auth/youtube";
+
+function toast(m, ms = 3000) { const t = document.createElement("div"); t.className = "toast"; t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), ms); }
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem("au_" + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem("au_" + k, JSON.stringify(v)); } catch {} },
+};
+
+/* ================================================================ IndexedDB: clips + queue survive reloads */
+const DB = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    if (!window.indexedDB) return rej(new Error("no IndexedDB"));
+    const r = indexedDB.open("autouploader", 1);
+    r.onupgradeneeded = () => { r.result.createObjectStore("files"); r.result.createObjectStore("kv"); };
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const tx = async (store, mode, fn) => { const db = await open(); return new Promise((res, rej) => { const t = db.transaction(store, mode); const out = fn(t.objectStore(store)); t.oncomplete = () => res(out && out.result !== undefined ? out.result : out); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error("storage full?")); }); };
+  return {
+    put: (store, key, val) => tx(store, "readwrite", (s) => s.put(val, key)).catch(() => null),
+    get: async (store, key) => { try { const db = await open(); return await new Promise((res) => { const r = db.transaction(store).objectStore(store).get(key); r.onsuccess = () => res(r.result); r.onerror = () => res(undefined); }); } catch { return undefined; } },
+    del: (store, key) => tx(store, "readwrite", (s) => s.delete(key)).catch(() => null),
+  };
+})();
+
+/* ================================================================ state */
+const S = {
+  token: null, tokenExp: 0, channel: null, tokenClient: null,
+  clips: [],          // {id, name, blob, size, duration, w, h, thumb, text, include, title, description, tags}
+  queue: [],          // {id, fileKey, title, description, tags, publishAt, status, videoId, error, attempts, uploadedAt, ...settings}
+  running: false, paused: LS.get("paused", false), waitUntil: 0, needAuth: false, current: null, progress: 0,
+  ytList: null,
+};
+
+/* ================================================================ 1. Google sign-in (token flow, no server, no secret) */
+$("#originCode").textContent = location.origin.startsWith("http") ? location.origin : "https://YOURNAME.github.io";
+$("#clientId").value = LS.get("clientId", "");
+$("#clientId").addEventListener("change", () => LS.set("clientId", $("#clientId").value.trim()));
+
+let gisPromise = null;
+function loadGIS() {
+  if (window.google && google.accounts && google.accounts.oauth2) return Promise.resolve();
+  return gisPromise || (gisPromise = new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = "https://accounts.google.com/gsi/client"; s.async = true;
+    s.onload = () => res(); s.onerror = () => { gisPromise = null; rej(new Error("Couldn't load Google sign-in. Check your internet connection" + (inPreview ? " — and note this Claude preview blocks Google sign-in; open your GitHub Pages copy." : "."))); };
+    document.head.appendChild(s);
+  }));
+}
+function connErr(m) { const e = $("#connErr"); e.textContent = m || ""; e.hidden = !m; }
+async function getToken(interactive = true, prompt = "") {
+  const cid = $("#clientId").value.trim() || LS.get("clientId", "");
+  if (!/\.apps\.googleusercontent\.com$/.test(cid)) throw new Error("Paste your Google OAuth Client ID first (it ends with .apps.googleusercontent.com).");
+  LS.set("clientId", cid);
+  await loadGIS();
+  return new Promise((resolve, reject) => {
+    const tc = google.accounts.oauth2.initTokenClient({
+      client_id: cid, scope: SCOPES, prompt,
+      callback: (r) => {
+        if (r.error) return reject(new Error(r.error_description || r.error));
+        S.token = r.access_token; S.tokenExp = Date.now() + (Number(r.expires_in || 3600) - 120) * 1000;
+        try { sessionStorage.setItem("au_tok", JSON.stringify({ t: S.token, e: S.tokenExp })); } catch {}
+        S.needAuth = false; resolve(S.token);
+      },
+      error_callback: (e) => reject(new Error(e && e.type === "popup_closed" ? "The Google window was closed." : (e && (e.message || e.type)) || "Google sign-in failed")),
+    });
+    tc.requestAccessToken({ prompt });
+  });
+}
+function tokenValid() { return S.token && Date.now() < S.tokenExp; }
+try { const t = JSON.parse(sessionStorage.getItem("au_tok") || "null"); if (t && t.e > Date.now()) { S.token = t.t; S.tokenExp = t.e; } } catch {}
+
+async function api(path, opts = {}) {
+  if (!tokenValid()) { S.needAuth = true; throw Object.assign(new Error("Google access expired — click “Continue” to refresh it."), { reason: "auth" }); }
+  const r = await fetch(path.startsWith("http") ? path : YT + path, { ...opts, headers: { Authorization: `Bearer ${S.token}`, ...(opts.body && typeof opts.body === "string" ? { "Content-Type": "application/json; charset=UTF-8" } : {}), ...(opts.headers || {}) } });
+  if (!r.ok) throw await apiError(r);
+  return r.status === 204 ? {} : r.json();
+}
+async function apiError(r) {
+  let j = {}; try { j = await r.json(); } catch {}
+  const e = (j.error || {}), reason = (e.errors && e.errors[0] && e.errors[0].reason) || e.status || "";
+  const msg = {
+    quotaExceeded: "Daily YouTube API quota used up — AutoPilot continues after midnight Pacific time.",
+    uploadLimitExceeded: "YouTube's daily upload limit for your channel was reached — AutoPilot continues in 24 hours.",
+    youtubeSignupRequired: "This Google account has no YouTube channel.",
+    invalidPublishAt: "YouTube rejected the scheduled time.",
+    authError: "Google access expired.", UNAUTHENTICATED: "Google access expired.",
+  }[reason] || (r.status === 401 ? "Google access expired." : e.message || `YouTube error ${r.status}`);
+  return Object.assign(new Error(msg), { reason: r.status === 401 ? "auth" : reason, status: r.status });
+}
+async function loadChannel() {
+  const j = await api("/channels?part=snippet,statistics,contentDetails&mine=true");
+  const c = (j.items || [])[0];
+  if (!c) throw new Error("No YouTube channel on this Google account.");
+  S.channel = { id: c.id, title: c.snippet.title, thumb: (c.snippet.thumbnails && (c.snippet.thumbnails.default || {}).url) || "", subs: c.statistics && c.statistics.subscriberCount, uploads: c.contentDetails && c.contentDetails.relatedPlaylists && c.contentDetails.relatedPlaylists.uploads };
+  LS.set("channel", S.channel);
+  paintConn();
+}
+function paintConn() {
+  const on = !!S.channel;
+  $("#connBox").hidden = on; $("#chanBox").hidden = !on; $("#c1").classList.toggle("done", on);
+  if (on) {
+    $("#chanName").textContent = S.channel.title;
+    $("#chanSubs").textContent = (S.channel.subs ? `${Number(S.channel.subs).toLocaleString()} subscribers · ` : "") + (tokenValid() ? "connected" : "reconnect needed to upload");
+    if (S.channel.thumb) $("#chanImg").src = S.channel.thumb;
+  }
+  $("#pill").classList.toggle("on", on && tokenValid());
+  $("#pillText").textContent = on ? `${S.channel.title}${S.running && !S.paused ? " · AutoPilot on" : ""}` : "Not connected";
+  updateButtons();
+}
+$("#connectBtn").addEventListener("click", async () => {
+  connErr("");
+  try { await getToken(true, "consent"); await loadChannel(); toast(`Connected to ${S.channel.title} ✓`); kick(); }
+  catch (e) { connErr(e.message); }
+});
+$("#switchBtn").addEventListener("click", async () => { try { await getToken(true, "select_account consent"); await loadChannel(); kick(); } catch (e) { toast(e.message); } });
+$("#logoutBtn").addEventListener("click", () => {
+  try { if (S.token && window.google) google.accounts.oauth2.revoke(S.token, () => {}); } catch {}
+  S.token = null; S.tokenExp = 0; S.channel = null; LS.set("channel", null);
+  try { sessionStorage.removeItem("au_tok"); } catch {}
+  paintConn();
+});
+S.channel = LS.get("channel", null);
+
+/* ================================================================ 2. clips: ZIP reader (no library) + video files */
+const VIDEO_EXT = /\.(mp4|mov|m4v|webm|mkv)$/i, TEXT_EXT = /\.(txt|srt|vtt)$/i;
+async function readZip(file) {
+  const tailLen = Math.min(file.size, 70000);
+  const tail = new DataView(await file.slice(file.size - tailLen).arrayBuffer());
+  let eocd = -1;
+  for (let i = tailLen - 22; i >= 0; i--) if (tail.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+  if (eocd < 0) throw new Error("That file isn't a valid ZIP.");
+  let count = tail.getUint16(eocd + 10, true), cdSize = tail.getUint32(eocd + 12, true), cdOff = tail.getUint32(eocd + 16, true);
+  if (cdOff === 0xffffffff || count === 0xffff) { // ZIP64
+    const loc = eocd - 20;
+    if (loc >= 0 && tail.getUint32(loc, true) === 0x07064b50) {
+      const z64 = Number(tail.getBigUint64(loc + 8, true));
+      const rec = new DataView(await file.slice(z64, z64 + 56).arrayBuffer());
+      count = Number(rec.getBigUint64(32, true)); cdSize = Number(rec.getBigUint64(40, true)); cdOff = Number(rec.getBigUint64(48, true));
+    }
+  }
+  const cd = new DataView(await file.slice(cdOff, cdOff + cdSize).arrayBuffer());
+  const dec = new TextDecoder();
+  const out = [];
+  let p = 0;
+  for (let n = 0; n < count && p + 46 <= cd.byteLength; n++) {
+    if (cd.getUint32(p, true) !== 0x02014b50) break;
+    const method = cd.getUint16(p + 10, true);
+    let csize = cd.getUint32(p + 20, true), usize = cd.getUint32(p + 24, true);
+    const nlen = cd.getUint16(p + 28, true), xlen = cd.getUint16(p + 30, true), clen = cd.getUint16(p + 32, true);
+    let lho = cd.getUint32(p + 42, true);
+    const name = dec.decode(new Uint8Array(cd.buffer, cd.byteOffset + p + 46, nlen));
+    // ZIP64 extra field
+    let q = p + 46 + nlen; const qend = q + xlen;
+    while (q + 4 <= qend) {
+      const id = cd.getUint16(q, true), sz = cd.getUint16(q + 2, true);
+      if (id === 1) { let r = q + 4; if (usize === 0xffffffff) { usize = Number(cd.getBigUint64(r, true)); r += 8; } if (csize === 0xffffffff) { csize = Number(cd.getBigUint64(r, true)); r += 8; } if (lho === 0xffffffff) { lho = Number(cd.getBigUint64(r, true)); } }
+      q += 4 + sz;
+    }
+    p += 46 + nlen + xlen + clen;
+    if (name.endsWith("/") || name.startsWith("__MACOSX/") || /(^|\/)\./.test(name)) continue;
+    if (!VIDEO_EXT.test(name) && !TEXT_EXT.test(name)) continue;
+    out.push({ name, method, csize, usize, lho });
+  }
+  const files = [];
+  for (const e of out) {
+    const lh = new DataView(await file.slice(e.lho, e.lho + 30).arrayBuffer());
+    const start = e.lho + 30 + lh.getUint16(26, true) + lh.getUint16(28, true);
+    const raw = file.slice(start, start + e.csize);
+    let blob;
+    if (e.method === 0) blob = raw;
+    else if (e.method === 8) {
+      if (!window.DecompressionStream) throw new Error("This browser can't unzip compressed files. Use the latest Chrome, Edge, Firefox or Safari.");
+      blob = await new Response(raw.stream().pipeThrough(new DecompressionStream("deflate-raw"))).blob();
+    } else continue;
+    const base = e.name.split("/").pop();
+    files.push(new File([blob], base, { type: VIDEO_EXT.test(base) ? (base.toLowerCase().endsWith(".webm") ? "video/webm" : base.toLowerCase().endsWith(".mov") ? "video/quicktime" : "video/mp4") : "text/plain" }));
+  }
+  return files;
+}
+function probeVideo(blob) {
+  return new Promise((res) => {
+    const v = document.createElement("video"); v.muted = true; v.preload = "metadata"; v.playsInline = true;
+    const url = URL.createObjectURL(blob); let done = false;
+    const fin = (o) => { if (done) return; done = true; URL.revokeObjectURL(url); v.removeAttribute("src"); v.load(); res(o); };
+    v.onloadedmetadata = () => { v.currentTime = Math.min(1, (v.duration || 2) / 3); };
+    v.onseeked = () => {
+      let thumb = "";
+      try { const c = document.createElement("canvas"); const r = 160 / Math.max(1, v.videoHeight); c.width = Math.max(1, Math.round(v.videoWidth * r)); c.height = 160; c.getContext("2d").drawImage(v, 0, 0, c.width, c.height); thumb = c.toDataURL("image/jpeg", 0.7); } catch {}
+      fin({ duration: v.duration, w: v.videoWidth, h: v.videoHeight, thumb });
+    };
+    v.onerror = () => fin({ duration: 0, w: 0, h: 0, thumb: "", bad: true });
+    setTimeout(() => fin({ duration: v.duration || 0, w: v.videoWidth || 0, h: v.videoHeight || 0, thumb: "" }), 8000);
+    v.src = url;
+  });
+}
+function textFromSubs(t) {
+  if (!t) return "";
+  if (/-->/.test(t)) return t.replace(/\r/g, "").split(/\n/).filter((l) => l && !/^\d+$/.test(l.trim()) && !/-->/.test(l) && !/^WEBVTT/.test(l)).join(" ").replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+  return t.trim();
+}
+async function addFiles(list) {
+  let files = [];
+  $("#dropText").innerHTML = "Reading files…";
+  try {
+    for (const f of list) {
+      if (/\.zip$/i.test(f.name) || f.type === "application/zip" || f.type === "application/x-zip-compressed") files.push(...await readZip(f));
+      else files.push(f);
+    }
+  } catch (e) { $("#dropText").textContent = e.message; return; }
+  const texts = {};
+  for (const f of files.filter((f) => TEXT_EXT.test(f.name))) {
+    const key = f.name.replace(/\.(txt|srt|vtt)$/i, "").toLowerCase();
+    const t = await f.text();
+    texts[key] = texts[key] || {};
+    if (/\.txt$/i.test(f.name)) texts[key].txt = t; else texts[key].subs = textFromSubs(t);
+  }
+  const vids = files.filter((f) => VIDEO_EXT.test(f.name)).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+  if (!vids.length) { $("#dropText").textContent = "No video files found. Use MP4, MOV or WebM (or a ZIP with them)."; return; }
+  let i = 0;
+  for (const f of vids) {
+    i++; $("#dropText").textContent = `Checking clip ${i} of ${vids.length}…`;
+    const meta = await probeVideo(f);
+    const key = f.name.replace(VIDEO_EXT, "").toLowerCase();
+    const id = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    S.clips.push({ id, name: f.name, blob: f, size: f.size, ...meta, txt: (texts[key] || {}).txt || "", subs: (texts[key] || {}).subs || "", include: !meta.bad, seed: Math.floor(Math.random() * 1e6) });
+  }
+  paintClips(); generateAll(false);
+}
+const drop = $("#drop");
+["dragenter", "dragover"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach((e) => drop.addEventListener(e, (ev) => { ev.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", (ev) => { if (ev.dataTransfer.files.length) addFiles([...ev.dataTransfer.files]); });
+$("#fileIn").addEventListener("change", () => { if ($("#fileIn").files.length) addFiles([...$("#fileIn").files]); $("#fileIn").value = ""; });
+
+function fmtDur(s) { s = Math.round(s || 0); return s >= 60 ? `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}` : `${s}s`; }
+function paintClips() {
+  const inc = S.clips.filter((c) => c.include);
+  const size = inc.reduce((a, c) => a + c.size, 0);
+  const notShort = S.clips.filter((c) => c.include && (c.duration > 180 || (c.w && c.h && c.w > c.h)));
+  drop.classList.toggle("done", S.clips.length > 0);
+  $("#dropText").innerHTML = S.clips.length ? `✓ <b>${S.clips.length} clips loaded</b> · drop more to add · <u>browse</u>` : $("#dropText").innerHTML;
+  $("#clipStats").hidden = !S.clips.length;
+  $("#clipStats").innerHTML = `<div><b>${inc.length}</b>clips selected</div><div><b>${(size / 1048576).toFixed(0)} MB</b>to upload</div><div><b>${fmtDur(inc.reduce((a, c) => a + (c.duration || 0), 0))}</b>total length</div><div><b>${S.clips.filter((c) => c.subs || c.txt).length}</b>with captions/text</div>`;
+  const w = $("#clipWarn");
+  w.hidden = !notShort.length;
+  w.textContent = notShort.length ? `⚠ ${notShort.length} clip(s) are longer than 3 minutes or horizontal. YouTube will post them as normal videos, not Shorts.` : "";
+  $("#c2").classList.toggle("done", inc.length > 0);
+  $("#genBtn").disabled = !S.clips.length;
+  updatePlan(); updateButtons();
+}
+
+/* ================================================================ 3. titles / descriptions / hashtags */
+["niche", "lang", "hashPool", "tagsIn", "credit", "ctaIn", "emoji", "shortsTitle", "useAI", "aiModel", "every", "perDay", "winFrom", "winTo", "cat", "vlang", "playlist", "kids", "notify", "synthetic"].forEach((id) => {
+  const el = document.getElementById(id), v = LS.get("f_" + id, null);
+  if (v != null) el.type === "checkbox" ? (el.checked = v) : (el.value = v);
+  el.addEventListener("change", () => { LS.set("f_" + id, el.type === "checkbox" ? el.checked : el.value); if (["every", "perDay", "winFrom", "winTo"].includes(id)) updatePlan(); });
+});
+try { $("#aiKey").value = localStorage.getItem("au_aikey") || ""; } catch {}
+$("#aiKey").addEventListener("change", () => { try { localStorage.setItem("au_aikey", $("#aiKey").value.trim()); } catch {} });
+const syncAI = () => ($("#aiBox").hidden = !$("#useAI").checked);
+$("#useAI").addEventListener("change", syncAI); syncAI();
+if (!$("#ctaIn").value) $("#ctaIn").value = "Follow for more 🔥\nSubscribe for daily clips!\nWhich part was the best? Comment below 👇\nTag a friend who needs to see this 😂\nTurn on notifications so you never miss a clip 🔔";
+
+function rng(seed) { let s = seed >>> 0 || 1; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+const pick = (r, a) => a[Math.floor(r() * a.length)];
+function shuffle(r, a) { a = [...a]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const HOOK = new Set("secret never always nobody everyone mistake truth crazy insane biggest worst best why how stop wrong actually money million billion hack trick mind shocking honestly imagine listen problem first only real story happened don't must lesson rich broke fail win won lost died love hate fear warning dangerous free important wait omg bro what sach kabhi galti paisa sabse kyun kaise suno zindagi asli raaz khatarnak bhai".split(" "));
+const STOP = new Set("the and that this with have from they what your just like really very about there when were would could should will been into only some more most much many also than then them their because going know think thing things said okay yeah gonna wanna right well even back make made people time something hai aur bhi toh yeh woh tha thi kya nahi hain raha rahi".split(" "));
+function cap(s) { s = s.trim(); return s ? s[0].toUpperCase() + s.slice(1) : s; }
+function cut(s, n) { s = s.trim(); return s.length <= n ? s : s.slice(0, n).replace(/\s+\S*$/, "") + "…"; }
+function clipText(c) {
+  if (c.subs) return c.subs;
+  if (c.txt) return c.txt.split("\n")[0].replace(/#\w+/g, "").trim();
+  return "";
+}
+function bestHook(c) {
+  const txt = clipText(c);
+  const sents = (txt.match(/[^.!?।]+[.!?।]*/g) || []).map((s) => s.trim()).filter((s) => s.length >= 12);
+  let best = "", bs = -1;
+  sents.slice(0, 14).forEach((s, i) => {
+    const w = s.toLowerCase().split(/\s+/);
+    const sc = w.filter((x) => HOOK.has(x.replace(/[^\w']/g, ""))).length * 2 + (/[?!]$/.test(s) ? 2 : 0) - i * 0.25 - (s.length > 95 ? 2 : 0) + (s.length >= 25 && s.length <= 75 ? 1 : 0);
+    if (sc > bs) { bs = sc; best = s; }
+  });
+  if (!best) {
+    best = txt || c.name.replace(VIDEO_EXT, "").replace(/clip[_\s-]*\d+/i, "").replace(/[_-]+/g, " ").trim();
+  }
+  return best.replace(/\s+/g, " ").trim();
+}
+function keywords(c, n = 4) {
+  const cnt = {};
+  (clipText(c).toLowerCase().match(/[\p{L}\p{N}']{4,}/gu) || []).forEach((w) => { w = w.replace(/'/g, ""); if (!STOP.has(w) && !/^\d+$/.test(w)) cnt[w] = (cnt[w] || 0) + 1; });
+  (c.txt.match(/#(\w+)/g) || []).forEach((h) => { const w = h.slice(1).toLowerCase(); if (!["shorts", "viral", "fyp"].includes(w)) cnt[w] = (cnt[w] || 0) + 3; });
+  return Object.entries(cnt).sort((a, b) => b[1] - a[1]).slice(0, n).map((x) => x[0]);
+}
+const TPL = {
+  en: [(h) => `${h}`, (h, e) => `${h}${e(" 😳")}`, (h, e) => `Wait for it…${e(" 💀")} ${h}`, (h, e, n) => (n ? `${n}: ${h}${e(" 🔥")}` : `${h}${e(" 🔥")}`), (h) => `POV: ${h.charAt(0).toLowerCase() + h.slice(1)}`, (h, e) => `${h} (watch till the end)${e(" 👀")}`, (h, e) => `Nobody expected this${e(" 😂")} | ${h}`, (h, e) => `He really said “${h}”${e(" 💀")}`, (h, e) => `This is crazy${e(" 🤯")} ${h}`, (h, e, n) => (n ? `${h} | ${n}${e(" ⚡")}` : `${h}${e(" ⚡")}`)],
+  hinglish: [(h) => `${h}`, (h, e) => `${h}${e(" 😳")}`, (h, e) => `End tak dekho${e(" 🔥")} ${h}`, (h, e) => `Kisi ne socha nahi tha${e(" 💀")} ${h}`, (h, e, n) => (n ? `${n}: ${h}${e(" 😂")}` : `${h}${e(" 😂")}`), (h, e) => `Yeh dekho bhai${e(" 🤯")} ${h}`, (h, e) => `${h} — sach mein?${e(" 😲")}`, (h, e) => `Bhai ne kya bol diya${e(" 💀")} “${h}”`],
+  hi: [(h) => `${h}`, (h, e) => `${h}${e(" 😳")}`, (h, e) => `अंत तक देखो${e(" 🔥")} ${h}`, (h, e) => `किसी ने सोचा नहीं था${e(" 💀")} ${h}`, (h, e, n) => (n ? `${n}: ${h}${e(" 😂")}` : `${h}${e(" 😂")}`), (h, e) => `यह देखो${e(" 🤯")} ${h}`],
+};
+function templateMeta(c, idx) {
+  const r = rng(c.seed + idx * 7919);
+  const lang = $("#lang").value, emoji = $("#emoji").checked, niche = $("#niche").value.trim();
+  const e = (s) => (emoji ? s : "");
+  let hook = cap(bestHook(c).replace(/^[“"']|[”"']$/g, ""));
+  if (!hook) hook = niche ? `${cap(niche)} moment #${idx + 1}` : `Clip #${idx + 1}`;
+  const tpls = TPL[lang] || TPL.en;
+  const tpl = tpls[(idx + Math.floor(r() * tpls.length)) % tpls.length];
+  let title = tpl(cut(hook.replace(/[.!।]+$/, ""), 62), e, niche ? cap(cut(niche, 22)) : "");
+  title = title.replace(/\s+/g, " ").trim();
+  if ($("#shortsTitle").checked && title.length <= 91) title += " #shorts";
+  title = cut(title, 100);
+  const pool = ($("#hashPool").value.match(/#?[\p{L}\p{N}_]+/gu) || []).map((h) => h.replace(/^#/, "")).filter((h) => h.toLowerCase() !== "shorts");
+  const kw = keywords(c, 3).filter((k) => !pool.map((p) => p.toLowerCase()).includes(k));
+  const nw = niche.split(/[^\p{L}\p{N}]+/u).filter(Boolean);
+  const nicheTag = nw.length ? (nw.length <= 2 ? nw.join("") : nw[0]) : "";
+  let tags = ["shorts", ...(nicheTag ? [nicheTag] : []), ...shuffle(r, pool).slice(0, 3 + Math.floor(r() * 3)), ...kw.slice(0, 2)];
+  tags = tags.filter((t, i) => t && tags.findIndex((x) => x.toLowerCase() === t.toLowerCase()) === i).slice(0, 8);
+  const hashtags = tags.map((t) => "#" + t).join(" ");
+  const ctas = $("#ctaIn").value.split("\n").map((s) => s.trim()).filter(Boolean);
+  const full = cap(clipText(c) ? cut(bestHook(c), 300) : hook);
+  const credit = $("#credit").value.trim();
+  const desc = [full, ctas.length ? ctas[(idx + Math.floor(r() * ctas.length)) % ctas.length] : "", hashtags, credit].filter(Boolean).join("\n\n");
+  const kwTags = $("#tagsIn").value.split(",").map((s) => s.trim()).filter(Boolean);
+  const ytTags = [...new Set([...kwTags, ...(niche ? [niche] : []), ...shuffle(r, pool).slice(0, 5), ...keywords(c, 4), "shorts"].map((t) => t.toLowerCase()))];
+  while (ytTags.join(",").length > 450) ytTags.pop();
+  return { title, description: desc.slice(0, 4900), tags: ytTags };
+}
+
+async function aiMeta(batch) {
+  const key = $("#aiKey").value.trim(), model = ($("#aiModel").value.trim() || "gemini-flash-latest").replace(/^models\//, "");
+  const lang = { en: "English", hinglish: "Hinglish (Hindi in Latin letters mixed with English)", hi: "Hindi (Devanagari)" }[$("#lang").value];
+  const prompt = `You write YouTube Shorts metadata that gets clicks without being misleading.
+Channel niche: ${$("#niche").value.trim() || "general"}. Language: ${lang}. ${$("#emoji").checked ? "Use 1 fitting emoji in titles." : "No emojis."}
+Hashtag pool to choose from: ${$("#hashPool").value.trim() || "(none, invent relevant ones)"}.
+For EACH clip below write: a unique, curiosity-driven title (max 70 characters, no hashtags, every title different in structure), a 2-3 sentence description that hooks the viewer and ends with a call to action, and 4-6 relevant hashtags (without #, always include "shorts").
+Return ONLY JSON: [{"i":number,"title":string,"description":string,"hashtags":[string]}]
+Clips:
+${batch.map(({ c, i }) => `${i}. file="${c.name}" transcript="${cut(clipText(c) || "(no transcript)", 700).replace(/"/g, "'")}"`).join("\n")}`;
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`, {
+    method: "POST", headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+    body: JSON.stringify({ contents: [{ role: "user", parts: [{ text: prompt }] }], generationConfig: { responseMimeType: "application/json" } }),
+  });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error((j.error && j.error.message) || `AI error ${r.status}`);
+  const text = (((j.candidates || [])[0] || {}).content || {}).parts?.map((p) => p.text || "").join("") || "";
+  const arr = JSON.parse(text.replace(/^```(json)?|```$/g, "").trim());
+  return Array.isArray(arr) ? arr : [];
+}
+
+async function generateAll(useAI = $("#useAI").checked) {
+  const list = S.clips;
+  list.forEach((c, i) => { if (!c.edited) Object.assign(c, templateMeta(c, i)); });
+  renderClipList();
+  if (!useAI || !list.length) { $("#genInfo").textContent = list.length ? `Written for ${list.length} clips — each one different. Edit anything, or 🔀 for a new version.` : ""; return; }
+  if (!$("#aiKey").value.trim()) { $("#genInfo").textContent = "Add your Gemini key for AI writing (templates used for now)."; return; }
+  const btn = $("#genBtn"); btn.disabled = true;
+  let ok = 0, fail = "";
+  for (let k = 0; k < list.length; k += 8) {
+    $("#genInfo").textContent = `✨ AI is writing… ${Math.min(k + 8, list.length)} / ${list.length}`;
+    const batch = list.slice(k, k + 8).map((c, j) => ({ c, i: k + j }));
+    try {
+      const res = await aiMeta(batch);
+      for (const o of res) {
+        const c = list[o.i]; if (!c || c.edited || !o.title) continue;
+        const tags = [...new Set(["shorts", ...(o.hashtags || []).map((h) => String(h).replace(/^#/, "").replace(/\s+/g, ""))])].slice(0, 8);
+        let title = cut(String(o.title).replace(/#\w+/g, "").trim(), 92);
+        if ($("#shortsTitle").checked) title += " #shorts";
+        const credit = $("#credit").value.trim();
+        c.title = cut(title, 100);
+        c.description = [String(o.description || "").trim(), tags.map((t) => "#" + t).join(" "), credit].filter(Boolean).join("\n\n").slice(0, 4900);
+        c.tags = [...new Set([...$("#tagsIn").value.split(",").map((s) => s.trim().toLowerCase()).filter(Boolean), ...tags.map((t) => t.toLowerCase())])];
+        ok++;
+      }
+    } catch (e) { fail = e.message; }
+    renderClipList();
+  }
+  btn.disabled = false;
+  $("#genInfo").textContent = fail && !ok ? `AI didn't work (${fail}) — using built-in writer instead.` : `✨ AI wrote ${ok} of ${list.length}${fail ? ` (others use the built-in writer: ${fail})` : ""}. Edit anything you like.`;
+}
+$("#genBtn").addEventListener("click", () => { S.clips.forEach((c) => (c.edited = false)); generateAll(); });
+
+function renderClipList() {
+  const box = $("#clipList");
+  box.innerHTML = S.clips.map((c, i) => `<div class="ci ${c.include ? "" : "off"}" data-id="${c.id}">
+    <input type="checkbox" class="inc" ${c.include ? "checked" : ""} title="Include">
+    ${c.thumb ? `<img class="th" src="${c.thumb}" alt="">` : `<div class="th"></div>`}
+    <div><input type="text" class="ti" maxlength="100" value="${esc(c.title)}">
+      <textarea class="de" rows="3">${esc(c.description)}</textarea>
+      <input type="text" class="tags" value="${esc((c.tags || []).join(", "))}" title="Tags">
+      <div class="meta"><span>${i + 1}. ${esc(c.name)}</span><span>${fmtDur(c.duration)}${c.w ? ` · ${c.w}×${c.h}` : ""}</span><span class="cnt">${(c.title || "").length}/100</span>${c.bad ? '<span class="bad">can’t read this video</span>' : ""}<button class="ghost sm shuf" type="button">🔀 new version</button></div></div></div>`).join("");
+}
+$("#clipList").addEventListener("input", (e) => {
+  const row = e.target.closest(".ci"); if (!row) return;
+  const c = S.clips.find((x) => x.id === row.dataset.id);
+  if (e.target.classList.contains("ti")) { c.title = e.target.value; c.edited = true; $(".cnt", row).textContent = `${c.title.length}/100`; }
+  if (e.target.classList.contains("de")) { c.description = e.target.value; c.edited = true; }
+  if (e.target.classList.contains("tags")) { c.tags = e.target.value.split(",").map((s) => s.trim()).filter(Boolean); c.edited = true; }
+});
+$("#clipList").addEventListener("change", (e) => {
+  const row = e.target.closest(".ci"); if (!row || !e.target.classList.contains("inc")) return;
+  const c = S.clips.find((x) => x.id === row.dataset.id); c.include = e.target.checked; row.classList.toggle("off", !c.include); paintClips();
+});
+$("#clipList").addEventListener("click", (e) => {
+  if (!e.target.classList.contains("shuf")) return;
+  const row = e.target.closest(".ci"), i = S.clips.findIndex((x) => x.id === row.dataset.id), c = S.clips[i];
+  c.seed += 101; c.edited = false; Object.assign(c, templateMeta(c, i));
+  $(".ti", row).value = c.title; $(".de", row).value = c.description; $(".tags", row).value = c.tags.join(", "); $(".cnt", row).textContent = `${c.title.length}/100`;
+});
+
+/* ================================================================ 4. schedule */
+function localInput(d) { const p = (n) => String(n).padStart(2, "0"); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; }
+function hm(s) { const [h, m] = String(s || "0:0").split(":").map(Number); return [clamp(h || 0, 0, 23), clamp(m || 0, 0, 59)]; }
+function settings() {
+  return { every: +$("#every").value, perDay: clamp(+$("#perDay").value || 32, 1, 96), from: $("#winFrom").value || "00:00", to: $("#winTo").value || "23:59",
+    category: $("#cat").value, lang: $("#vlang").value.trim(), playlist: $("#playlist").value.trim(), kids: $("#kids").checked, notify: $("#notify").checked, synthetic: $("#synthetic").checked };
+}
+function makeSlots(count, st, start, taken) {
+  const out = [], per = {}, interval = st.every * 60000, [fh, fm] = hm(st.from), [th, tm] = hm(st.to);
+  (taken || []).forEach((t) => { const k = new Date(t).toDateString(); per[k] = (per[k] || 0) + 1; });
+  const lastTaken = (taken || []).length ? Math.max(...taken.map((t) => +new Date(t))) : 0;
+  let t = new Date(Math.max(+start, Date.now() + 20 * 60000, lastTaken ? lastTaken + interval : 0));
+  t.setSeconds(0, 0);
+  for (let guard = 0; out.length < count && guard < 200000; guard++) {
+    const ds = new Date(t); ds.setHours(fh, fm, 0, 0);
+    const de = new Date(t); de.setHours(th, tm, 59, 0);
+    if (t < ds) { t = ds; continue; }
+    if (t > de || (per[t.toDateString()] || 0) >= st.perDay) { t = new Date(t); t.setDate(t.getDate() + 1); t.setHours(fh, fm, 0, 0); continue; }
+    out.push(new Date(t)); per[t.toDateString()] = (per[t.toDateString()] || 0) + 1;
+    t = new Date(+t + interval);
+  }
+  return out;
+}
+function whenText(d) {
+  d = new Date(d); const now = new Date(), tm = new Date(+now + 864e5);
+  const day = d.toDateString() === now.toDateString() ? "Today" : d.toDateString() === tm.toDateString() ? "Tomorrow" : d.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
+  return `${day} ${d.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}`;
+}
+function takenSlots() { return S.queue.filter((q) => q.status !== "failed").map((q) => q.publishAt); }
+function defaultStart() {
+  const taken = takenSlots(); const last = taken.length ? Math.max(...taken.map((t) => +new Date(t))) : 0;
+  const d = new Date(Math.max(Date.now() + 25 * 60000, last ? last + settings().every * 60000 : 0)); d.setSeconds(0, 0); return d;
+}
+$("#startAt").value = localInput(defaultStart());
+function updatePlan() {
+  const n = S.clips.filter((c) => c.include).length;
+  if (!n) { $("#plan").innerHTML = "Add clips to see the schedule."; return; }
+  const slots = makeSlots(n, settings(), new Date($("#startAt").value || Date.now()), takenSlots());
+  const days = new Set(slots.map((d) => d.toDateString())).size;
+  $("#plan").innerHTML = `<b>${n} Shorts</b> · first <b>${whenText(slots[0])}</b> · last <b>${whenText(slots[slots.length - 1])}</b> · one every <b>${settings().every} min</b> · over <b>${days} day${days > 1 ? "s" : ""}</b>`;
+}
+["#startAt", "#every", "#perDay", "#winFrom", "#winTo"].forEach((s) => $(s).addEventListener("input", updatePlan));
+
+function updateButtons() {
+  const n = S.clips.filter((c) => c.include && !c.bad).length;
+  $("#startBtn").disabled = !S.channel || !n;
+  $("#startBtn").textContent = !S.channel ? "Connect your channel first (step 1)" : !n ? "Add clips first (step 2)" : `🚀 Start AutoPilot: schedule ${n} Short${n > 1 ? "s" : ""}`;
+}
+
+$("#startBtn").addEventListener("click", async () => {
+  const er = $("#startErr"); er.hidden = true;
+  const chosen = S.clips.filter((c) => c.include && !c.bad);
+  const bad = chosen.find((c) => !c.title || !c.title.trim());
+  if (bad) { er.hidden = false; er.textContent = `Clip “${bad.name}” has no title.`; return; }
+  if (!tokenValid()) { try { await getToken(true, ""); } catch (e) { er.hidden = false; er.textContent = e.message; return; } }
+  const st = settings();
+  const slots = makeSlots(chosen.length, st, new Date($("#startAt").value || Date.now()), takenSlots());
+  $("#startBtn").disabled = true; $("#startBtn").textContent = "Saving clips…";
+  for (let i = 0; i < chosen.length; i++) {
+    const c = chosen[i], qid = "q" + Date.now().toString(36) + i;
+    await DB.put("files", qid, c.blob);
+    S.queue.push({ id: qid, name: c.name, size: c.size, thumb: c.thumb, title: cut(c.title.trim(), 100), description: c.description || "", tags: (c.tags || []).slice(0, 40),
+      publishAt: slots[i].toISOString(), status: "waiting", videoId: null, error: "", attempts: 0, uploadedAt: 0,
+      category: st.category, lang: st.lang, playlist: st.playlist, kids: st.kids, notify: st.notify, synthetic: st.synthetic });
+    S.memBlobs[qid] = c.blob;
+  }
+  await saveQueue();
+  S.clips = []; renderClipList(); paintClips();
+  $("#dropText").innerHTML = "<b>Drop more clips</b> to schedule after these · <u>browse</u>";
+  drop.classList.remove("done");
+  $("#startAt").value = localInput(defaultStart());
+  S.paused = false; LS.set("paused", false);
+  toast(`${chosen.length} Shorts added to AutoPilot 🚀`);
+  $("#c5").scrollIntoView({ behavior: "smooth" });
+  kick();
+});
+
+/* ================================================================ 5. AutoPilot: upload with publishAt; YouTube posts on schedule */
+S.memBlobs = {};
+async function saveQueue() { LS.set("queue_meta", S.queue.length); await DB.put("kv", "queue", S.queue); paintQueue(); }
+async function loadQueue() { const q = await DB.get("kv", "queue"); S.queue = Array.isArray(q) ? q : []; S.queue.forEach((x) => { if (x.status === "uploading") x.status = "waiting"; }); paintQueue(); }
+
+function nextMidnightPacific() {
+  try {
+    const now = new Date();
+    const pt = new Date(now.toLocaleString("en-US", { timeZone: "America/Los_Angeles" }));
+    const diff = now - pt;
+    const m = new Date(pt); m.setDate(m.getDate() + 1); m.setHours(0, 5, 0, 0);
+    return +m + diff;
+  } catch { return Date.now() + 6 * 3600e3; }
+}
+function uploads24h() { return S.queue.filter((q) => q.uploadedAt && Date.now() - q.uploadedAt < 864e5).length; }
+
+function replanLate() {
+  // If the page was closed for a while, waiting Shorts whose time has passed get fresh times (keeping the spacing).
+  const waiting = S.queue.filter((q) => q.status === "waiting").sort((a, b) => new Date(a.publishAt) - new Date(b.publishAt));
+  if (!waiting.length || new Date(waiting[0].publishAt) > Date.now() + 18 * 60000) return false;
+  const st = { ...settings(), every: waiting[0].every || settings().every };
+  const keep = S.queue.filter((q) => q.status === "scheduled" || q.status === "live").map((q) => q.publishAt).filter((t) => new Date(t) > Date.now());
+  const slots = makeSlots(waiting.length, st, new Date(), keep);
+  waiting.forEach((q, i) => (q.publishAt = slots[i].toISOString()));
+  return true;
+}
+
+function uploadPut(session, blob, onProg) {
+  return new Promise((res, rej) => {
+    const x = new XMLHttpRequest();
+    x.open("PUT", session);
+    x.setRequestHeader("Authorization", `Bearer ${S.token}`);
+    x.setRequestHeader("Content-Type", blob.type || "video/mp4");
+    x.upload.onprogress = (e) => e.lengthComputable && onProg(e.loaded / e.total);
+    x.onload = () => {
+      let j = {}; try { j = JSON.parse(x.responseText || "{}"); } catch {}
+      if (x.status >= 200 && x.status < 300) return res(j);
+      const er = j.error || {}; const reason = (er.errors && er.errors[0] && er.errors[0].reason) || "";
+      rej(Object.assign(new Error(er.message || `upload failed (${x.status})`), { reason: x.status === 401 ? "auth" : reason, status: x.status }));
+    };
+    x.onerror = () => rej(Object.assign(new Error("Network problem while uploading"), { reason: "network" }));
+    x.ontimeout = x.onerror;
+    x.send(blob);
+  });
+}
+async function uploadOne(q) {
+  let blob = S.memBlobs[q.id] || (await DB.get("files", q.id));
+  if (!blob) throw Object.assign(new Error("The clip file is missing from this browser — add it again."), { reason: "missing" });
+  const pub = new Date(q.publishAt);
+  const scheduled = pub > Date.now() + 16 * 60000;
+  const status = { privacyStatus: scheduled ? "private" : "public", selfDeclaredMadeForKids: !!q.kids, embeddable: true, license: "youtube", publicStatsViewable: true, containsSyntheticMedia: !!q.synthetic };
+  if (scheduled) status.publishAt = pub.toISOString();
+  const snippet = { title: q.title, description: q.description, tags: q.tags, categoryId: String(q.category || "24") };
+  if (q.lang) { snippet.defaultLanguage = q.lang; snippet.defaultAudioLanguage = q.lang; }
+  if (!tokenValid()) throw Object.assign(new Error("Google access expired"), { reason: "auth" });
+  const init = await fetch(`${YT_UP}/videos?uploadType=resumable&part=snippet,status&notifySubscribers=${q.notify ? "true" : "false"}`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${S.token}`, "Content-Type": "application/json; charset=UTF-8", "X-Upload-Content-Length": String(blob.size), "X-Upload-Content-Type": blob.type || "video/mp4" },
+    body: JSON.stringify({ snippet, status }),
+  });
+  if (!init.ok) throw await apiError(init);
+  const session = init.headers.get("Location");
+  if (!session) throw new Error("YouTube didn't return an upload address.");
+  const res = await uploadPut(session, blob, (p) => { S.progress = p; paintProgress(); });
+  if (q.playlist && res.id) {
+    try { await api("/playlistItems?part=snippet", { method: "POST", body: JSON.stringify({ snippet: { playlistId: q.playlist, resourceId: { kind: "youtube#video", videoId: res.id } } }) }); }
+    catch (e) { q.note = `Not added to playlist: ${e.message}`; }
+  }
+  return { id: res.id, scheduled };
+}
+
+let loopRunning = false;
+async function kick() {
+  paintConn();
+  if (loopRunning) return;
+  loopRunning = true;
+  try {
+    for (;;) {
+      paintQueue();
+      if (S.paused || !S.channel) break;
+      const waiting = S.queue.filter((q) => q.status === "waiting");
+      if (!waiting.length) break;
+      if (Date.now() < S.waitUntil) { await sleep(Math.min(30000, S.waitUntil - Date.now() + 500)); continue; }
+      if (!tokenValid()) { S.needAuth = true; paintQueue(); break; }
+      if (uploads24h() >= 90) { S.waitUntil = Math.min(...S.queue.filter((q) => q.uploadedAt).map((q) => q.uploadedAt)) + 864e5; S.waitMsg = "Reached 90 uploads in 24 h (safety cap below YouTube's 100/day API limit)."; continue; }
+      if (replanLate()) await saveQueue();
+      const q = S.queue.filter((x) => x.status === "waiting").sort((a, b) => new Date(a.publishAt) - new Date(b.publishAt))[0];
+      q.status = "uploading"; S.current = q.id; S.progress = 0; S.running = true; paintQueue(); paintConn();
+      try {
+        const r = await uploadOne(q);
+        q.status = r.scheduled ? "scheduled" : "live"; q.videoId = r.id; q.uploadedAt = Date.now(); q.error = "";
+        S.memBlobs[q.id] = null; delete S.memBlobs[q.id]; await DB.del("files", q.id);
+        S.waitMsg = "";
+      } catch (e) {
+        q.attempts = (q.attempts || 0) + 1; q.error = e.message;
+        if (e.reason === "auth") { q.status = "waiting"; S.needAuth = true; }
+        else if (e.reason === "quotaExceeded") { q.status = "waiting"; S.waitUntil = nextMidnightPacific(); S.waitMsg = e.message; }
+        else if (e.reason === "uploadLimitExceeded") { q.status = "waiting"; S.waitUntil = Date.now() + 864e5; S.waitMsg = e.message; }
+        else if (["missing", "invalidTitle", "invalidDescription", "invalidTags", "invalidCategoryId", "youtubeSignupRequired"].includes(e.reason) || q.attempts >= 4) q.status = "failed";
+        else { q.status = "waiting"; S.waitUntil = Date.now() + 30000 * q.attempts; S.waitMsg = `Retrying soon: ${e.message}`; }
+      }
+      S.current = null; await saveQueue();
+      if (S.needAuth) break;
+    }
+  } finally { loopRunning = false; S.running = false; paintQueue(); paintConn(); }
+}
+
+function paintProgress() {
+  const q = S.queue.find((x) => x.id === S.current);
+  if (!q) return;
+  const row = document.querySelector(`.qrow[data-q="${q.id}"] .badge`);
+  if (row) row.textContent = `uploading ${Math.round(S.progress * 100)}%`;
+  $("#apBar").style.width = `${Math.round(S.progress * 100)}%`;
+}
+function paintQueue() {
+  const Q = [...S.queue].sort((a, b) => new Date(a.publishAt) - new Date(b.publishAt));
+  const c = (st) => Q.filter((q) => q.status === st).length;
+  const scheduled = Q.filter((q) => q.status === "scheduled" && new Date(q.publishAt) > Date.now());
+  const live = Q.filter((q) => q.status === "live" || (q.status === "scheduled" && new Date(q.publishAt) <= Date.now()));
+  const waiting = c("waiting") + c("uploading");
+  $("#apStats").innerHTML = Q.length ? `<div><b>${waiting}</b>waiting to upload</div><div><b>${scheduled.length}</b>scheduled on YouTube</div><div><b>${live.length}</b>published</div><div><b>${c("failed")}</b>failed</div>${scheduled[0] ? `<div><b>${whenText(scheduled[0].publishAt)}</b>next Short goes live</div>` : ""}<div><b>${uploads24h()}</b>uploads in 24 h</div>` : "";
+  const warn = $("#apWarn"); const msgs = [];
+  if (S.paused) msgs.push("⏸ AutoPilot is paused.");
+  if (S.needAuth && waiting) msgs.push(`🔑 Google access expired (it lasts about 1 hour). <button class="btn sm" type="button" id="reauth">Continue uploading</button>`);
+  if (!S.channel && waiting) msgs.push("Connect your channel (step 1) to continue.");
+  if (Date.now() < S.waitUntil && S.waitMsg) msgs.push(`⏳ ${esc(S.waitMsg)} (resumes ${whenText(S.waitUntil)})`);
+  if (waiting && !S.paused && !S.needAuth) msgs.push("Keep this page open until “waiting to upload” reaches 0. After that, YouTube posts everything on schedule by itself, so you can close it.");
+  warn.hidden = !msgs.length; warn.innerHTML = msgs.join("<br>");
+  const rb = $("#reauth"); if (rb) rb.onclick = async () => { try { await getToken(true, ""); S.needAuth = false; kick(); } catch (e) { toast(e.message); } };
+  $("#pauseBtn").textContent = S.paused ? "Resume" : "Pause";
+  $("#apBarWrap").hidden = !S.current;
+  $("#apStatus").textContent = !Q.length ? "Nothing queued yet. Add clips and start AutoPilot." : S.current ? "Uploading…" : waiting && !S.paused && !S.needAuth && Date.now() >= S.waitUntil ? "Starting…" : waiting ? "" : "✓ Everything is uploaded. YouTube will publish each Short at its time, even if you close this page.";
+  $("#queue").innerHTML = Q.slice(-400).map((q) => {
+    const isLive = q.status === "live" || (q.status === "scheduled" && new Date(q.publishAt) <= Date.now());
+    const st = isLive ? "live" : q.status;
+    const label = { waiting: "waiting to upload", uploading: `uploading ${Math.round(S.progress * 100)}%`, scheduled: "scheduled ✓", live: "published", failed: "failed" }[st];
+    const act = q.status === "waiting" ? `<button class="x" data-a="remove" type="button">remove</button>` : q.status === "failed" ? `<button class="x" data-a="retry" type="button">retry</button>` : q.videoId ? `<a href="https://youtube.com/shorts/${esc(q.videoId)}" target="_blank" rel="noopener">open ↗</a>` : "<span></span>";
+    return `<div class="qrow" data-q="${q.id}" title="${esc(q.error || q.note || "")}"><span>${whenText(q.publishAt)}</span><span class="t">${esc(q.title)}${q.error && q.status !== "scheduled" && q.status !== "live" ? ` <span class="bad">· ${esc(q.error.slice(0, 90))}</span>` : ""}</span><span class="badge ${st}">${label}</span>${act}</div>`;
+  }).join("");
+  $("#c5").classList.toggle("done", Q.length > 0 && !waiting);
+}
+$("#queue").addEventListener("click", async (e) => {
+  const b = e.target.closest("button[data-a]"); if (!b) return;
+  const id = b.closest(".qrow").dataset.q, q = S.queue.find((x) => x.id === id);
+  if (b.dataset.a === "remove") { S.queue = S.queue.filter((x) => x !== q); await DB.del("files", id); delete S.memBlobs[id]; }
+  else { q.status = "waiting"; q.attempts = 0; q.error = ""; }
+  await saveQueue(); kick();
+});
+$("#pauseBtn").addEventListener("click", () => { S.paused = !S.paused; LS.set("paused", S.paused); paintQueue(); if (!S.paused) kick(); });
+$("#refreshYt").addEventListener("click", async () => {
+  // Pull the real status of uploaded Shorts from YouTube (works from any device).
+  const ids = S.queue.filter((q) => q.videoId).map((q) => q.videoId);
+  if (!ids.length) return toast("Nothing uploaded yet.");
+  if (!tokenValid()) { try { await getToken(true, ""); } catch (e) { return toast(e.message); } }
+  try {
+    for (let i = 0; i < ids.length; i += 50) {
+      const j = await api(`/videos?part=status&id=${ids.slice(i, i + 50).join(",")}`);
+      for (const v of j.items || []) {
+        const q = S.queue.find((x) => x.videoId === v.id); if (!q) continue;
+        const ps = v.status.privacyStatus;
+        if (ps === "public") q.status = "live";
+        else if (v.status.publishAt) { q.status = "scheduled"; q.publishAt = v.status.publishAt; }
+        else if (ps === "private") { q.status = "scheduled"; q.note = "Private on YouTube — if your Google project isn't audited yet, YouTube keeps API uploads private."; }
+        if (v.status.uploadStatus === "rejected" || v.status.uploadStatus === "failed") { q.status = "failed"; q.error = `YouTube: ${v.status.rejectionReason || v.status.failureReason || v.status.uploadStatus}`; }
+      }
+      const found = new Set((j.items || []).map((v) => v.id));
+      ids.slice(i, i + 50).filter((id) => !found.has(id)).forEach((id) => { const q = S.queue.find((x) => x.videoId === id); if (q) { q.status = "failed"; q.error = "Deleted on YouTube"; } });
+    }
+    await saveQueue(); toast("Updated from YouTube ✓");
+  } catch (e) { toast(e.message); }
+});
+document.addEventListener("visibilitychange", () => { if (!document.hidden) kick(); });
+setInterval(() => { paintQueue(); if (!loopRunning && !S.paused) kick(); }, 30000);
+window.addEventListener("beforeunload", (e) => { if (S.current) { e.preventDefault(); e.returnValue = ""; } });
+
+/* ================================================================ boot */
+paintConn(); paintClips(); updatePlan();
+loadQueue().then(() => { $("#startAt").value = localInput(defaultStart()); updatePlan(); if (S.channel && tokenValid()) kick(); else paintQueue(); });
+if (inPreview) { $("#connErr").hidden = false; $("#connErr").textContent = "Note: this Claude preview window blocks Google sign-in. Everything else can be tried here; connecting and uploading works on your GitHub Pages copy."; }
+})();
+</script>
+</body>
+</html>
